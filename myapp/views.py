@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from twilio.twiml.messaging_response import MessagingResponse
 import logging
-from .supabase_client import supabase
+from .supabase import supabase
 import requests
 
 logger = logging.getLogger("myapp")
