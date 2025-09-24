@@ -1,9 +1,3 @@
-"""
-Django settings for UploadBot project.
-
-Updated for environment variable use, logging, Twilio, and production readiness.
-"""
-
 from pathlib import Path
 import os
 import logging.config
@@ -165,6 +159,6 @@ logging.config.dictConfig({
             'handlers': ['console'],
             'level': 'DEBUG',
         },
-    },
+    }, 
 })
 

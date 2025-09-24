@@ -3,8 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from twilio.twiml.messaging_response import MessagingResponse
 import logging
-from .supabase import supabase
 import requests
+from .supabase import supabase
+from .twilio import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
 
 logger = logging.getLogger("myapp")
 
@@ -36,7 +37,8 @@ def upload_file(request):
                     filename += ".dat"
 
                 try:
-                    r = requests.get(media_url, auth=(supabase.twilio_account_sid, supabase.twilio_auth_token))
+                    # Download media from Twilio using HTTP Basic Auth
+                    r = requests.get(media_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
                     if r.status_code == 200:
                         supabase.storage.from_("images").upload(f"whatsapp/{filename}", r.content)
                         uploaded_files.append(filename)
