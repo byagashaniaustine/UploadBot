@@ -41,7 +41,7 @@ def upload_file(request):
                     # Download the file
                     r = requests.get(media_url)
                     if r.status_code == 200:
-                        supabase.storage.from_("uploads").upload(f"whatsapp/{filename}", r.content)
+                        supabase.storage.from_("images").upload(f"whatsapp/{filename}", r.content)
                         uploaded_files.append(filename)
 
                 resp.message(f"✅ File(s) uploaded successfully: {', '.join(uploaded_files)}")
