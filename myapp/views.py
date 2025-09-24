@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from twilio.twiml.messaging_response import MessagingResponse
 import logging
 import requests
+
 from .supabase import supabase
 from .twilio import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
 
@@ -18,51 +19,54 @@ def upload_file(request):
             incoming_msg = request.POST.get("Body", "").strip().lower()
             num_media = int(request.POST.get("NumMedia", 0))
 
-            logger.info(f"📩 Incoming message from {from_number}: {incoming_msg} with {num_media} media files")
+            logger.info(f"📩 Incoming message from {from_number}: {incoming_msg}, NumMedia={num_media}")
 
             uploaded_files = []
 
-            # Process media files
+            # Process media if any
             for i in range(num_media):
                 media_url = request.POST.get(f"MediaUrl{i}")
                 media_type = request.POST.get(f"MediaContentType{i}")
-                filename = f"{from_number.replace(':', '')}_{i}"
+                filename = f"{from_number.replace(':','')}_{i}"
 
+                # Keep file extension
                 if "pdf" in media_type:
                     filename += ".pdf"
                 elif "image" in media_type:
-                    ext = media_type.split("/")[1]  # e.g., image/jpeg -> jpeg
+                    ext = media_type.split("/")[1]  # image/jpeg -> jpeg
                     filename += f".{ext}"
                 else:
                     filename += ".dat"
 
-                try:
-                    # Download media from Twilio using HTTP Basic Auth
-                    r = requests.get(media_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
-                    if r.status_code == 200:
-                        supabase.storage.from_("images").upload(f"whatsapp/{filename}", r.content)
-                        uploaded_files.append(filename)
-                        logger.info(f"✅ Uploaded file: {filename}")
-                    else:
-                        logger.error(f"Failed to download media {media_url}, status {r.status_code}")
-                except Exception as e:
-                    logger.exception(f"Exception downloading media {media_url}")
+                # Download the media using Twilio auth
+                r = requests.get(media_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
+                if r.status_code == 200:
+                    supabase.storage.from_("images").upload(f"whatsapp/{filename}", r.content)
+                    uploaded_files.append(filename)
+                else:
+                    logger.error(f"Failed to download media {media_url}, status {r.status_code}")
 
             if uploaded_files:
-                resp.message(f"✅ File(s) uploaded successfully: {', '.join(uploaded_files)}\n📂 File submitted successfully!")
+                resp.message(f"✅ File(s) submitted successfully: {', '.join(uploaded_files)}")
                 return HttpResponse(str(resp))
 
-            # Default menu response
+            # Default menu response if no media
             if incoming_msg in ["hi", "hello", "start", "menu", ""]:
                 resp.message(
                     "👋 Welcome! You can send me a PDF or image to upload.\n"
-                    "Or choose a topic:\n1️⃣ Improve credit\n2️⃣ Loan tips\n3️⃣ Debt repayment\n4️⃣ Common mistakes\n5️⃣ Upload document"
+                    "Or choose a topic:\n"
+                    "1️⃣ Improve credit\n"
+                    "2️⃣ Loan tips\n"
+                    "3️⃣ Debt repayment\n"
+                    "4️⃣ Common mistakes\n"
+                    "5️⃣ Upload document"
                 )
             else:
                 resp.message(
                     "🤔 I didn't get that. Please reply with *menu* or send a file."
                 )
 
+            logger.info(f"✉️ Sending response to {from_number}")
             return HttpResponse(str(resp))
 
         return HttpResponse("OK")
