@@ -47,7 +47,7 @@ def upload_file(request):
                     logger.error(f"Failed to download media {media_url}, status {r.status_code}")
 
             if uploaded_files:
-                resp.message(f"✅ File(s) submitted successfully: {', '.join(uploaded_files)}")
+                resp.message(f"✅ File(s) submitted successfully: ")
                 return HttpResponse(str(resp))
 
             # Default menu response if no media
