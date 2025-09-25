@@ -122,7 +122,7 @@ if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER]):
 # SUPABASE (optional for file uploads)
 # -----------------------------
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 if not all([SUPABASE_URL, SUPABASE_KEY]):
     raise ValueError("Supabase environment variables not set!")
 

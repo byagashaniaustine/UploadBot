@@ -41,7 +41,7 @@ def upload_file(request):
                 # Download the media using Twilio auth
                 r = requests.get(media_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
                 if r.status_code == 200:
-                    supabase.storage.from_("images").upload(f"whatsapp/{filename}", r.content)
+                    supabase.storage.from_("uploads").upload(f"whatsapp/{filename}", r.content)
                     uploaded_files.append(filename)
                 else:
                     logger.error(f"Failed to download media {media_url}, status {r.status_code}")
